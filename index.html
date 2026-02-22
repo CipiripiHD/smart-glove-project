@@ -52,18 +52,27 @@ const device = await navigator.bluetooth.requestDevice({
                 statusPolje.style.color = "#28a745";
                 dugme.classList.add('pulse');
 
-                characteristic.addEventListener('characteristicvaluechanged', (event) => {
-                    let decoder = new TextDecoder('utf-8');
-                    let rawMessage = decoder.decode(event.target.value);
-                    let cleanMessage = rawMessage.trim(); // Čisti "random" znakove
-                    
-                    console.log("Received:", cleanMessage);
+                // Ovaj deo ide unutar <script> taga u tvom index.html fajlu
+characteristic.addEventListener('characteristicvaluechanged', (event) => {
+    let decoder = new TextDecoder('utf-8');
+    let rawMessage = decoder.decode(event.target.value);
+    let cleanMessage = rawMessage.trim(); // Čisti sve nevidljive znakove
+    
+    console.log("Stiglo sa rukavice:", cleanMessage);
 
-                    // Provjera poruke i sprečavanje preklapanja govora
-                    if (cleanMessage === "Hello" && !window.speechSynthesis.speaking) {
-                        speak("Hello, I am your smart glove");
-                    }
-                });
+    // Provera da li telefon već ne priča (da se glasovi ne preklapaju)
+    if (!window.speechSynthesis.speaking) {
+        if (cleanMessage === "Hello") {
+            speak("Hello, I am your smart glove");
+        } else if (cleanMessage === "Yes") {
+            speak("Yes, I agree");
+        } else if (cleanMessage === "No") {
+            speak("No, thank you");
+        } else if (cleanMessage === "Help") {
+            speak("I need help, please");
+        }
+    }
+});
 
             } catch (error) {
                 console.error(error);
@@ -82,4 +91,5 @@ const device = await navigator.bluetooth.requestDevice({
         }
     </script>
 </body>
+
 </html>
