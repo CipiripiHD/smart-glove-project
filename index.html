@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Petar's Smart Glove</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 50px; background-color: #1a1a1a; color: white; }
-        .container { background: #2c2c2c; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: inline-block; }
-        #povezi { padding: 15px 40px; font-size: 18px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 50px; transition: 0.3s; text-transform: uppercase; font-weight: bold; }
-        #povezi:hover { background: #218838; transform: scale(1.05); }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 50px; background-color: #1a1a1a; color: white; }
+        .container { background: #2c2c2c; padding: 30px; border-radius: 15px; display: inline-block; }
+        #povezi { padding: 15px 40px; font-size: 18px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 50px; }
         #status { margin-top: 25px; font-size: 1.2em; color: #bbb; }
-        .pulse { animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0px rgba(40, 167, 69, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(40, 167, 69, 0); } }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Smart Glove Project</h1>
         <p>Future of Communication by Petar</p>
-        
         <button id="povezi">Connect Glove</button>
         <div id="status">Status: Disconnected</div>
     </div>
@@ -33,63 +28,41 @@
 
         dugme.addEventListener('click', async () => {
             try {
-                statusPolje.innerText = "Scanning for glove...";
-                
-                // Zamijeni ovaj dio u svom petar.html:
-const device = await navigator.bluetooth.requestDevice({
-    acceptAllDevices: true,
-    optionalServices: [SERVICE_UUID]
-});
-
-                statusPolje.innerText = "Connecting to GATT...";
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [SERVICE_UUID]
+                });
                 const server = await device.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 const characteristic = await service.getCharacteristic(TX_CHARACTERISTIC_UUID);
-
                 await characteristic.startNotifications();
                 
                 statusPolje.innerText = "Status: CONNECTED ✅";
                 statusPolje.style.color = "#28a745";
-                dugme.classList.add('pulse');
 
-                // Ovaj deo ide unutar <script> taga u tvom index.html fajlu
-characteristic.addEventListener('characteristicvaluechanged', (event) => {
-    let decoder = new TextDecoder('utf-8');
-    let rawMessage = decoder.decode(event.target.value);
-    let cleanMessage = rawMessage.trim(); // Čisti sve nevidljive znakove
-    
-    console.log("Stiglo sa rukavice:", cleanMessage);
+                characteristic.addEventListener('characteristicvaluechanged', (event) => {
+                    let decoder = new TextDecoder('utf-8');
+                    let msg = decoder.decode(event.target.value).trim();
+                    console.log("Stiglo:", msg);
 
-    // Provera da li telefon već ne priča (da se glasovi ne preklapaju)
-    if (!window.speechSynthesis.speaking) {
-        if (cleanMessage === "Hello") {
-            speak("Hello, I am your smart glove");
-        } else if (cleanMessage === "Yes") {
-            speak("Yes, I agree");
-        } else if (cleanMessage === "No") {
-            speak("No, thank you");
-        } else if (cleanMessage === "Help") {
-            speak("I need help, please");
-        }
-    }
-});
-
+                    if (!window.speechSynthesis.speaking) {
+                        if (msg === "Hello") speak("Hello, I am your smart glove");
+                        else if (msg === "Yes") speak("Yes, I agree");
+                        else if (msg === "No") speak("No, thank you");
+                        else if (msg === "Help") speak("I need help, please");
+                        else if (msg === "Goodbye") speak("Goodbye, have a nice day");
+                    }
+                });
             } catch (error) {
-                console.error(error);
                 statusPolje.innerText = "Error: " + error.message;
-                statusPolje.style.color = "#ff4d4d";
             }
         });
 
         function speak(text) {
-            const synth = window.speechSynthesis;
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; // Američki engleski
-            utterance.pitch = 1.0;
-            utterance.rate = 0.9; // Malo sporije da zvuči jasnije
-            synth.speak(utterance);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
         }
     </script>
 </body>
-
 </html>
