@@ -46,12 +46,17 @@
                     console.log("Stiglo:", msg);
 
                     if (!window.speechSynthesis.speaking) {
-                        if (msg === "Hello") speak("Hello, I am your smart glove");
-                        else if (msg === "Yes") speak("Yes, I agree");
-                        else if (msg === "No") speak("No, thank you");
-                        else if (msg === "Help") speak("I need help, please");
-                        else if (msg === "Goodbye") speak("Goodbye, have a nice day");
-                    }
+    if (msg === "Hello") speak("Hello, I am your smart glove");
+    else if (msg === "Yes") speak("Yes, I agree");
+    else if (msg === "No") speak("No, thank you");
+    else if (msg === "Help") speak("I need help, please");
+    else if (msg === "Goodbye") speak("Goodbye, have a nice day");
+    // NOVE REČI:
+    else if (msg === "Serbia") speak("Serbia");
+    else if (msg === "My") speak("My");
+    else if (msg === "name is") speak("name is");
+    else if (msg === "Peter") speak("Peter");
+}
                 });
             } catch (error) {
                 statusPolje.innerText = "Error: " + error.message;
@@ -66,3 +71,4 @@
     </script>
 </body>
 </html>
+
